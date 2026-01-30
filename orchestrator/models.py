@@ -28,9 +28,11 @@ class Boundary(BaseModel):
     description: str
     value: Any
     is_hard_limit: bool = True
+    category: Optional[str] = None  # Optional category for more specific matching
 
     class Config:
         use_enum_values = True
+
 
 
 class UserFramework(BaseModel):

@@ -187,8 +187,14 @@ class SwarmOrchestrator:
             tuple: (is_within_boundaries, list_of_violations)
         """
         violations = []
+        action_category = action_details.get("category", "")
         
         for boundary in self.boundaries:
+            # Skip if boundary has a category and it doesn't match the action
+            if boundary.category and action_category:
+                if boundary.category != action_category:
+                    continue
+            
             if boundary.type == BoundaryType.BUDGET:
                 cost = action_details.get("cost", 0)
                 if cost > boundary.value:
@@ -213,10 +219,36 @@ class SwarmOrchestrator:
             
             elif boundary.type == BoundaryType.SCOPE:
                 scope = action_details.get("scope", "")
-                if boundary.value and scope not in boundary.value:
-                    violations.append(
-                        f"Action scope ({scope}) outside allowed boundaries"
-                    )
+                # Allow if boundary.value is a list and scope contains any keyword from it
+                # OR if scope is explicitly in the list
+                if boundary.value:
+                    if isinstance(boundary.value, list):
+                        # Check if scope matches or contains any allowed keyword
+                        allowed = False
+                        for allowed_scope in boundary.value:
+                            # Convert both to lowercase for comparison
+                            scope_lower = scope.lower().replace("_", " ")
+                            allowed_lower = allowed_scope.lower().replace("_", " ")
+                            
+                            # Split into keywords and check if any match
+                            scope_keywords = set(scope_lower.split())
+                            allowed_keywords = set(allowed_lower.split())
+                            
+                            # If there's any overlap in keywords, it's allowed
+                            if scope_keywords & allowed_keywords:
+                                allowed = True
+                                break
+                        
+                        if not allowed:
+                            violations.append(
+                                f"Action scope ({scope}) outside allowed boundaries"
+                            )
+                    else:
+                        # Single value - exact match
+                        if scope != boundary.value:
+                            violations.append(
+                                f"Action scope ({scope}) outside allowed boundaries"
+                            )
         
         return len(violations) == 0, violations
     
@@ -311,9 +343,9 @@ class SwarmOrchestrator:
             confidence=confidence,
             rationale=rationale,
             framework_alignment={
-                "goals_aligned": bool(self.user_framework.goals),
-                "values_aligned": bool(self.user_framework.values),
-                "intent_clear": bool(self.user_framework.intent),
+                "goals_aligned": "yes" if self.user_framework.goals else "no",
+                "values_aligned": "yes" if self.user_framework.values else "no",
+                "intent_clear": "yes" if self.user_framework.intent else "no",
             },
             boundaries_checked=[b.type for b in self.boundaries],
             requires_confirmation=requires_confirmation
