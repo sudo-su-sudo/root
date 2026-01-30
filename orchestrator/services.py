@@ -79,9 +79,13 @@ class DomainRegistrar(ServiceIntegration):
         payment_method: Dict[str, str]
     ) -> Dict[str, Any]:
         """
-        Purchase a domain
+        Purchase a domain (SIMULATION MODE)
         
-        Returns purchase confirmation or error
+        NOTE: This is a simulation. Real implementation would process payment
+        and register the domain with the registrar's API.
+        
+        Returns:
+            Dict with simulation status and next steps required
         """
         if not self.authenticated:
             return {"error": "Not authenticated", "success": False}
@@ -136,9 +140,13 @@ class EmailProvider(ServiceIntegration):
         account_type: str = "basic"
     ) -> Dict[str, Any]:
         """
-        Create a new email account
+        Create a new email account (SIMULATION MODE)
         
-        Returns account details or error
+        NOTE: This is a simulation. Real implementation would create an actual
+        email account via the provider's API.
+        
+        Returns:
+            Dict with simulation status and next steps required
         """
         if not self.authenticated:
             return {"error": "Not authenticated", "success": False}
@@ -360,9 +368,13 @@ class AIPlatformResearcher:
         account_details: Dict[str, Any]
     ) -> Dict[str, Any]:
         """
-        Create an account on the selected platform
+        Create an account on the selected platform (SIMULATION MODE)
         
-        Returns account creation result
+        NOTE: This is a simulation. Real implementation would integrate with
+        the platform's registration API.
+        
+        Returns:
+            Dict with simulation status and next steps required
         """
         # Placeholder - in production, integrate with platform APIs
         return {

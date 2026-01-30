@@ -156,27 +156,29 @@ class TestSwarmOrchestrator:
         assert confidence == ConfidenceLevel.HIGH
     
     def test_calculate_confidence_low(self):
-        """Test confidence calculation - low confidence"""
+        """Test confidence calculation - low/medium confidence with empty framework"""
         orchestrator = SwarmOrchestrator()
         
-        # Empty framework - should have MEDIUM confidence (not LOW) unless boundaries are violated
-        # because we check boundaries and get +1 point if within them
+        # Empty framework with no boundaries violated gives 1 point (within boundaries)
+        # out of max 5 points = score of 1, which maps to MEDIUM confidence
+        # If boundaries were violated, it would be LOW
         confidence = orchestrator.calculate_confidence(
             "Execute task",
             {"cost": 5000}
         )
         
-        # With no goals, values, or intent, and no gaps, but within boundaries = 1/5 = MEDIUM
+        # Expect MEDIUM since within boundaries (gets 1 point)
         assert confidence in [ConfidenceLevel.LOW, ConfidenceLevel.MEDIUM]
     
     def test_make_decision_requires_confirmation(self):
-        """Test decision making when confirmation is required"""
+        """Test decision making when confirmation is required due to knowledge gaps"""
         orchestrator = SwarmOrchestrator()
         
         # Identify knowledge gaps first to trigger confirmation requirement
+        # This creates gaps for goals, values, and intent
         orchestrator.identify_knowledge_gaps("Deploy application")
         
-        # Incomplete framework should require confirmation
+        # With critical knowledge gaps, requires_confirmation should be True
         decision = orchestrator.make_decision(
             "Deploy application",
             "deploy",
@@ -184,7 +186,7 @@ class TestSwarmOrchestrator:
         )
         
         assert decision.requires_confirmation is True
-        # Confidence could be MEDIUM or LOW depending on boundary state
+        # Confidence is MEDIUM (1 point for within boundaries) with empty framework
         assert decision.confidence in [ConfidenceLevel.LOW, ConfidenceLevel.MEDIUM]
     
     def test_make_decision_confident(self):

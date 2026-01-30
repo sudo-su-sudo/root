@@ -2,7 +2,7 @@
 Main SwarmOrchestrator implementation
 """
 
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Tuple
 from .models import (
     UserFramework,
     ClarificationQuestion,
@@ -179,7 +179,7 @@ class SwarmOrchestrator:
         self.pending_questions.extend(questions)
         return questions
     
-    def check_boundaries(self, proposed_action: str, action_details: Dict[str, Any]) -> tuple[bool, List[str]]:
+    def check_boundaries(self, proposed_action: str, action_details: Dict[str, Any]) -> Tuple[bool, List[str]]:
         """
         Check if a proposed action violates any boundaries.
         
