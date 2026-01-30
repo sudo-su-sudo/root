@@ -1,16 +1,43 @@
 # Autonomous AI Swarm Orchestrator
 
-A sophisticated AI orchestrator that handles high-level requests within defined boundaries (budgets, ethics, time) while building a holistic understanding of user intent.
+A sophisticated AI orchestrator that handles high-level requests within defined boundaries (budgets, ethics, time) while building a holistic understanding of user intent. **This system can autonomously execute real-world tasks** like domain registration, email setup, and platform selection.
 
-## Features
+## Key Capabilities
 
-- **Anticipates Ambiguities**: Proactively identifies gaps in understanding before taking action
-- **Targeted Clarification**: Asks focused questions to build a complete user mental model
-- **Holistic User Framework**: Captures goals, values, intent, and preferences
-- **Confident Decision Making**: Only acts when user values and intent are solidly understood
-- **Boundary Enforcement**: Respects budget, ethical, temporal, and scope constraints
-- **Knowledge Gap Identification**: Explicitly tracks what is unknown before proceeding
-- **Confidence Scoring**: Transparent about certainty levels for each decision
+### Core Features
+
+- ✅ **Anticipates Ambiguities**: Proactively identifies gaps in understanding before taking action
+- ✅ **Targeted Clarification**: Asks focused questions upfront to build a complete user mental model
+- ✅ **Holistic User Framework**: Captures goals, values, intent, and preferences
+- ✅ **Confident Decision Making**: Only acts when user values and intent are solidly understood
+- ✅ **Boundary Enforcement**: Respects budget, ethical, temporal, and scope constraints
+- ✅ **Knowledge Gap Identification**: Explicitly tracks what is unknown before proceeding
+- ✅ **Confidence Scoring**: Transparent about certainty levels for each decision
+
+### Autonomous Execution (NEW!)
+
+- ✅ **Task Decomposition**: Breaks complex requests into manageable executable steps
+- ✅ **Context Gathering**: Integrates with Google Workspace and Gemini for user context
+- ✅ **Service Integrations**: Domain registrars, email providers, AI platforms
+- ✅ **Multi-step Workflows**: Handles dependencies between tasks automatically
+- ✅ **Real-world Actions**: Simulates domain purchase, email setup, platform research
+- ✅ **Safety First**: Simulation mode by default with explicit confirmation requirements
+
+## Real-World Example
+
+The orchestrator handles complex, multi-part requests like:
+
+> "Research and purchase a web domain matching my project concepts from Google Docs, set up a work email with that domain (total cost < $15), then research the most secure AI platform with end-to-end encryption and agentic features (< $50/month), and set up an account if suitable."
+
+**What the orchestrator does:**
+
+1. **Identifies knowledge gaps** - Do I understand your goals, values, and intent?
+2. **Asks clarifying questions** - Builds complete mental model upfront
+3. **Decomposes request** - Breaks into: domain research, domain purchase, email setup, AI platform research
+4. **Checks boundaries** - Ensures each step respects budget and ethical constraints
+5. **Researches options** - Finds platforms matching requirements (encryption, features, cost)
+6. **Makes recommendations** - Selects best option based on your value framework
+7. **Requires confirmation** - Shows plan before executing (safety first!)
 
 ## Installation
 
@@ -26,154 +53,233 @@ pip install -e .
 
 ## Quick Start
 
-### Basic Usage
+### Example 1: Basic Autonomous Request
 
 ```python
-from orchestrator import SwarmOrchestrator
-
-# Create an orchestrator
-orchestrator = SwarmOrchestrator()
-
-# Process a request (will ask for clarification if needed)
-result = orchestrator.process_request("Build a new customer management system")
-
-if result['status'] == 'needs_clarification':
-    for question in result['clarification_questions']:
-        print(question['question'])
-```
-
-### Complete Workflow
-
-```python
-from orchestrator import SwarmOrchestrator, Boundary, BoundaryType
+from orchestrator import AutonomousOrchestrator
+from orchestrator.models import Boundary, BoundaryType
 
 # Create orchestrator
-orchestrator = SwarmOrchestrator()
-
-# Build user framework
-orchestrator.update_user_framework(
-    goals=["Improve customer satisfaction", "Reduce costs"],
-    values=["Data privacy", "Transparency", "Quality"],
-    intent="Build a robust CRM that respects user privacy"
-)
+orch = AutonomousOrchestrator()
 
 # Set boundaries
-orchestrator.add_boundary(Boundary(
+orch.add_boundary(Boundary(
     type=BoundaryType.BUDGET,
-    description="Project budget",
-    value=50000,
-    is_hard_limit=True
+    description="Total budget",
+    value=100.0,
+    category="general"
 ))
 
-orchestrator.add_boundary(Boundary(
-    type=BoundaryType.ETHICAL,
-    description="Privacy-first approach",
-    value="no_data_sharing"
-))
+# Process request
+request = "Help me set up my online business infrastructure"
+result = orch.process_autonomous_request(request)
 
-# Make a decision
-decision = orchestrator.make_decision(
-    request="Deploy CRM system",
-    action="deploy_system",
-    action_details={"cost": 30000, "duration": 60}
+# Result will ask clarifying questions since framework is empty
+if result['status'] == 'needs_clarification':
+    for q in result['clarification_questions']:
+        print(q['question'])
+```
+
+### Example 2: With Complete User Framework
+
+```python
+from orchestrator import AutonomousOrchestrator
+from orchestrator.models import Boundary, BoundaryType
+
+# Create orchestrator
+orch = AutonomousOrchestrator()
+
+# Build user framework (normally gathered from Google Docs/Gemini)
+orch.update_user_framework(
+    goals=["Launch AI security company", "Establish professional presence"],
+    values=["Security first", "Privacy", "Cost efficiency"],
+    intent="Set up foundational infrastructure for AI security startup"
 )
 
-print(f"Confidence: {decision.confidence}")
-print(f"Requires confirmation: {decision.requires_confirmation}")
-print(f"Rationale: {decision.rationale}")
+# Set specific boundaries
+orch.add_boundary(Boundary(
+    type=BoundaryType.BUDGET,
+    description="Domain and email budget",
+    value=15.0,
+    category="domain"
+))
+
+orch.add_boundary(Boundary(
+    type=BoundaryType.BUDGET,
+    description="AI platform monthly cost",
+    value=50.0,
+    category="platform"
+))
+
+# Now it can act confidently!
+request = """
+Research and purchase a domain for my AI security company, 
+set up email (< $15 total), and find the best secure AI 
+platform with encryption (< $50/month)
+"""
+
+result = orch.process_autonomous_request(request)
+
+if result['status'] == 'completed':
+    print("✓ Plan ready for execution")
+    for task in result['execution_results']['tasks']:
+        print(f"  - {task['name']}: {task['description']}")
+```
+
+See `example_real_world.py` and `example_with_framework.py` for complete working examples.
+
+## Architecture
+
+### System Components
+
+```
+AutonomousOrchestrator
+├── UserFramework (goals, values, intent, mental model)
+├── BoundaryChecker (budget, ethical, temporal, scope)
+├── KnowledgeGapIdentifier (what's missing?)
+├── TaskExecutor (decompose and execute)
+├── ContextAggregator (Google Workspace + Gemini)
+└── ServiceRegistry (domain, email, AI platforms)
+```
+
+### Decision Flow
+
+```
+High-level Request
+      ↓
+Gather Context (Google Docs, Gemini history)
+      ↓
+Identify Knowledge Gaps → Generate Clarifying Questions
+      ↓                           ↓
+Framework Complete?        Answer Questions
+      ↓ Yes                      ↓
+Decompose into Tasks ←──────────┘
+      ↓
+Check Each Task Against Boundaries
+      ↓
+Calculate Confidence Level
+      ↓
+High Confidence? → Execute (with confirmation)
+Low/Medium → Ask for approval
 ```
 
 ## Core Concepts
 
 ### User Framework
 
-The orchestrator builds a holistic understanding of the user through:
+The orchestrator builds a holistic understanding through:
 
-- **Goals**: What the user wants to achieve
-- **Values**: Principles and ethical guidelines
-- **Intent**: The specific purpose of the current request
-- **Mental Model**: Preferences and domain knowledge
-- **Context**: Additional situational information
+- **Goals**: What you want to achieve (e.g., "Launch startup", "Cut costs")
+- **Values**: Your principles (e.g., "Privacy first", "Quality over speed")
+- **Intent**: Specific purpose of current request
+- **Mental Model**: Your preferences and patterns
+- **Context**: Domain knowledge and situation
 
-### Boundaries
+### Boundaries (with Categories!)
 
-Constraints that the orchestrator must respect:
+Constraints with optional categories for precise matching:
 
-- **BUDGET**: Financial limits
-- **ETHICAL**: Ethical and moral guidelines
+```python
+Boundary(
+    type=BoundaryType.BUDGET,
+    value=50.0,
+    category="platform"  # Only applies to platform-related costs
+)
+```
+
+Types:
+- **BUDGET**: Financial limits (can have categories)
+- **ETHICAL**: Moral guidelines (e.g., "privacy_required")
 - **TEMPORAL**: Time constraints
-- **SCOPE**: Domain or operational scope
+- **SCOPE**: Allowed operation domains
 
 ### Knowledge Gaps
 
-The orchestrator explicitly tracks what it doesn't know:
+Explicit tracking of unknowns:
 
-- **Area**: Which aspect is unclear (goals, values, budget, etc.)
-- **Priority**: How critical the gap is (high/medium/low)
-- **Required for Action**: Whether this must be resolved before acting
+```python
+KnowledgeGap(
+    area="budget",
+    description="No budget specified for domain",
+    priority="high",
+    required_for_action=True  # Must resolve before acting
+)
+```
 
 ### Confidence Levels
 
-Every decision has an associated confidence level:
+Every decision includes confidence:
 
-- **HIGH**: Complete framework, all boundaries checked, clear alignment
-- **MEDIUM**: Partial framework or minor gaps
+- **HIGH**: Complete framework + all boundaries met + no critical gaps
+- **MEDIUM**: Partial framework or minor uncertainties
 - **LOW**: Significant gaps or boundary violations
 
-## Architecture
+## Service Integrations
 
-### Key Components
+### Available Integrations
 
-1. **SwarmOrchestrator**: Main class that coordinates all operations
-2. **UserFramework**: Stores user goals, values, intent, and mental model
-3. **Boundary**: Defines operational constraints
-4. **KnowledgeGap**: Tracks what is unknown
-5. **ClarificationQuestion**: Targeted questions to resolve ambiguities
-6. **Decision**: Records actions with confidence and rationale
+1. **Domain Registrars** - Search, check availability, purchase domains
+2. **Email Providers** - Create work email accounts
+3. **AI Platform Researcher** - Compare platforms by security, features, pricing
 
-### Decision Flow
+### Adding New Services
 
+```python
+from orchestrator.services import ServiceIntegration
+
+class MyService(ServiceIntegration):
+    def authenticate(self, credentials):
+        # Auth logic
+        pass
+    
+    def execute_action(self, action, parameters):
+        # Execute logic
+        pass
+
+# Register
+orch.service_registry.register_service("my_service", MyService())
 ```
-Request → Identify Gaps → Generate Questions
-                             ↓
-                    Framework Complete?
-                             ↓
-              Check Boundaries → Calculate Confidence
-                             ↓
-                    Make Decision with Rationale
-                             ↓
-              Requires Confirmation? → Act or Confirm
+
+## Context Gathering
+
+### Google Workspace Integration
+
+```python
+from orchestrator.context import GoogleWorkspaceContextProvider
+
+provider = GoogleWorkspaceContextProvider(credentials_path="creds.json")
+orch.context_aggregator.add_provider("google_workspace", provider)
+
+# Automatically extracts:
+# - Project concepts from documents
+# - Goals from folder contents
+# - Collaboration patterns
 ```
 
-## API Reference
+### Gemini Integration
 
-### SwarmOrchestrator
+```python
+from orchestrator.context import GeminiContextProvider
 
-#### Methods
+provider = GeminiContextProvider(api_key="YOUR_API_KEY")
+orch.context_aggregator.add_provider("gemini", provider)
 
-- `add_boundary(boundary: Boundary)`: Add a constraint
-- `update_user_framework(...)`: Update user goals, values, intent
-- `identify_knowledge_gaps(request: str)`: Find what's unclear
-- `generate_clarification_questions(gaps)`: Create targeted questions
-- `check_boundaries(action, details)`: Verify constraints
-- `calculate_confidence(request, details)`: Determine certainty level
-- `make_decision(request, action, details)`: Make an informed decision
-- `process_request(request: str)`: Main entry point
-- `can_act_confidently()`: Check if ready to act
+# Extracts from conversation history:
+# - Stated preferences
+# - Project history
+# - Interaction patterns
+```
 
-## Examples
-
-See `examples.py` for comprehensive usage examples including:
-
-1. Basic usage with clarification flow
-2. Complete framework setup
-3. Decision making with boundaries
-4. Knowledge gap identification
-5. Confidence level calculations
-
-Run examples:
+## Running Examples
 
 ```bash
+# Basic usage - shows clarification questions
+python example_real_world.py
+
+# Complete workflow - shows autonomous execution
+python example_with_framework.py
+
+# Original examples
 python examples.py
 ```
 
@@ -193,20 +299,74 @@ pytest tests/ --cov=orchestrator --cov-report=html
 
 ## Design Principles
 
-1. **Transparency**: Always explain decisions and confidence levels
-2. **Safety First**: Never act without sufficient understanding
-3. **User-Centric**: Build deep understanding of user mental model
-4. **Proactive**: Anticipate issues before they arise
-5. **Bounded**: Respect all defined constraints
-6. **Iterative**: Continuously refine understanding through interaction
+1. **Safety First**: Simulation mode by default, explicit confirmation for real actions
+2. **Transparency**: Always explain decisions and confidence levels
+3. **Never Assume**: Ask questions upfront rather than guess
+4. **User-Centric**: Build deep understanding of user mental model
+5. **Proactive**: Anticipate issues before they arise
+6. **Bounded**: Respect all defined constraints absolutely
+7. **Iterative**: Continuously refine understanding through interaction
+
+## Enabling Real Execution
+
+**IMPORTANT**: Current implementation runs in **simulation mode** for safety.
+
+To enable real execution:
+
+1. **Set up authentication**:
+   ```python
+   orch.setup_context_providers(
+       google_credentials="path/to/creds.json",
+       gemini_api_key="YOUR_API_KEY"
+   )
+   ```
+
+2. **Configure payment methods** for domain/email services
+
+3. **Enable service API access**:
+   ```python
+   # Example: Domain registrar
+   registrar = orch.service_registry.get_service("domain_registrar")
+   registrar.authenticate({"api_key": "YOUR_API_KEY"})
+   ```
+
+4. **Review and confirm** each execution plan before proceeding
 
 ## Use Cases
 
-- **Project Planning**: Ensure alignment with goals and budgets
-- **Resource Allocation**: Make decisions within financial/ethical bounds
-- **Task Delegation**: Understand intent before assigning work
-- **Risk Assessment**: Identify gaps before committing to actions
-- **Autonomous Systems**: Enable AI to act responsibly on user's behalf
+### Startup Infrastructure Setup
+- Domain research and registration
+- Professional email accounts
+- Development platform selection
+- All within budget constraints
+
+### Research and Analysis
+- Compare service providers
+- Evaluate options against criteria
+- Make recommendations based on values
+
+### Autonomous Task Management
+- Break down complex requests
+- Execute multi-step workflows
+- Handle dependencies automatically
+
+### Decision Support
+- Identify ambiguities in requirements
+- Ask targeted clarifying questions
+- Build confidence through understanding
+
+## Philosophy
+
+This orchestrator embodies the principle that AI should:
+
+- **Ask before assuming**: Clarify ambiguities upfront
+- **Understand holistically**: Build complete mental models
+- **Act confidently only when justified**: Know when certainty is sufficient
+- **Respect boundaries**: Honor user constraints absolutely
+- **Be transparent**: Explain reasoning and confidence levels
+- **Prioritize safety**: Simulate before executing
+
+The goal is **confident, autonomous action grounded in solid understanding of user values and intent**.
 
 ## Contributing
 
@@ -220,15 +380,3 @@ Contributions are welcome! Please ensure:
 ## License
 
 MIT License - See LICENSE file for details
-
-## Philosophy
-
-This orchestrator embodies the principle that AI should:
-
-- **Ask before assuming**: Clarify ambiguities upfront
-- **Understand holistically**: Build complete mental models
-- **Act confidently only when justified**: Know when certainty is sufficient
-- **Respect boundaries**: Honor user constraints absolutely
-- **Be transparent**: Explain reasoning and confidence levels
-
-The goal is confident, autonomous action grounded in solid understanding of user values and intent.
