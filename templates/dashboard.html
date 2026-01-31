@@ -110,6 +110,36 @@
             margin-top: 5px;
         }
 
+        .persistence-indicator {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 10px;
+            padding: 10px;
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #155724;
+            gap: 5px;
+        }
+
+        .persistence-indicator .status-icon {
+            font-size: 16px;
+        }
+
+        .persistence-indicator .last-saved {
+            font-size: 10px;
+            opacity: 0.8;
+            margin-left: 5px;
+        }
+
+        .persistence-indicator.saving {
+            background: #fff3cd;
+            border-color: #ffeaa7;
+            color: #856404;
+        }
+
         .tabs {
             display: flex;
             background: #f8f9fa;
@@ -342,6 +372,11 @@
                     <div class="progress-fill" id="understanding-progress">0%</div>
                 </div>
             </div>
+            <div class="persistence-indicator" id="persistence-status">
+                <span class="status-icon">💾</span>
+                <span class="status-text">Data persisted - safe to close browser!</span>
+                <span class="last-saved" id="last-saved-time"></span>
+            </div>
             <div class="stats">
                 <div class="stat">
                     <div class="stat-value" id="decision-count">0</div>
@@ -505,6 +540,25 @@
                 document.getElementById('decision-count').textContent = data.decision_count;
                 document.getElementById('pattern-count').textContent = data.patterns_identified;
                 document.getElementById('confidence').textContent = level + '%';
+                
+                // Update persistence status
+                if (data.last_saved) {
+                    const lastSaved = new Date(data.last_saved);
+                    const now = new Date();
+                    const diffMinutes = Math.floor((now - lastSaved) / 60000);
+                    
+                    let timeText = '';
+                    if (diffMinutes < 1) {
+                        timeText = 'just now';
+                    } else if (diffMinutes < 60) {
+                        timeText = `${diffMinutes}m ago`;
+                    } else {
+                        const diffHours = Math.floor(diffMinutes / 60);
+                        timeText = `${diffHours}h ago`;
+                    }
+                    
+                    document.getElementById('last-saved-time').textContent = `(saved ${timeText})`;
+                }
                 
             } catch (error) {
                 console.error('Error updating status:', error);

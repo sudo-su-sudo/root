@@ -16,8 +16,14 @@ python3 web_app.py
 - 📝 **Record decisions** - Simple forms
 - 🔮 **Get predictions** - Based on learned patterns
 - 💡 **View insights** - See what it learned
+- 💾 **Persistent storage** - Data survives browser restarts!
+
+**🎉 Close your browser anytime - your data is safe!**
+
+Your learning history, decisions, and patterns are automatically saved to a database. Even if your phone restarts or the browser closes, the orchestrator remembers everything when you come back!
 
 See [WEB_INTERFACE_GUIDE.md](WEB_INTERFACE_GUIDE.md) for complete instructions!
+See [PERSISTENCE_GUIDE.md](PERSISTENCE_GUIDE.md) for details on data persistence!
 
 ![Web Interface](https://github.com/user-attachments/assets/34879f84-a138-4c04-85ea-fe7ee4d42e55)
 

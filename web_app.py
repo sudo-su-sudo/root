@@ -11,33 +11,62 @@ import json
 import secrets
 from datetime import datetime
 from orchestrator import LearningOrchestrator, Boundary, BoundaryType
+from orchestrator.persistence import OrchestratorPersistence
 
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(16)
 CORS(app)
 
-# Store orchestrator instances per session
+# Initialize persistence layer
+persistence = OrchestratorPersistence()
+
+# In-memory cache for active sessions (for performance)
 orchestrators = {}
 
 
+def get_user_id():
+    """Get or create persistent user ID"""
+    if 'user_id' not in session:
+        # Create new persistent user ID
+        session['user_id'] = secrets.token_hex(8)
+        persistence.create_user_session(session['user_id'])
+    return session['user_id']
+
+
 def get_orchestrator():
-    """Get or create orchestrator for current session"""
-    if 'session_id' not in session:
-        session['session_id'] = secrets.token_hex(8)
+    """Get or create orchestrator for current session with persistence"""
+    user_id = get_user_id()
     
-    session_id = session['session_id']
+    # Check in-memory cache first
+    if user_id not in orchestrators:
+        # Try to load from database
+        orch = persistence.load_orchestrator(user_id)
+        
+        if orch is None:
+            # Create new orchestrator
+            orch = LearningOrchestrator()
+            # Set some default framework
+            orch.update_user_framework(
+                goals=["Learn and grow", "Make good decisions"],
+                values=["Quality", "Efficiency", "Security"],
+                intent="Explore and learn preferences"
+            )
+            # Save initial state
+            persistence.save_orchestrator(user_id, orch)
+        
+        orchestrators[user_id] = orch
     
-    if session_id not in orchestrators:
-        orch = LearningOrchestrator()
-        # Set some default framework
-        orch.update_user_framework(
-            goals=["Learn and grow", "Make good decisions"],
-            values=["Quality", "Efficiency", "Security"],
-            intent="Explore and learn preferences"
-        )
-        orchestrators[session_id] = orch
-    
-    return orchestrators[session_id]
+    return orchestrators[user_id]
+
+
+def save_current_state():
+    """Save current orchestrator state to database"""
+    if 'user_id' in session:
+        user_id = session['user_id']
+        if user_id in orchestrators:
+            persistence.save_orchestrator(user_id, orchestrators[user_id])
+            return True
+    return False
 
 
 @app.route('/')
@@ -48,12 +77,16 @@ def index():
 
 @app.route('/api/status', methods=['GET'])
 def get_status():
-    """Get current learning status"""
+    """Get current learning status with persistence info"""
     orch = get_orchestrator()
     summary = orch.get_learning_summary()
     progress = orch.get_progress_update()
     
     can_act, reason = orch.should_act_autonomously()
+    
+    # Get persistence stats
+    user_id = get_user_id()
+    stats = persistence.get_user_stats(user_id)
     
     return jsonify({
         'understanding_level': summary['understanding_level'],
@@ -67,13 +100,15 @@ def get_status():
         'next_steps': progress.next_steps,
         'dimension_scores': summary['dimension_scores'],
         'strong_patterns': summary.get('strong_patterns', []),
-        'confident_hypotheses': summary.get('confident_hypotheses', [])
+        'confident_hypotheses': summary.get('confident_hypotheses', []),
+        'last_saved': stats.get('last_saved'),
+        'is_persisted': True
     })
 
 
 @app.route('/api/record_decision', methods=['POST'])
 def record_decision():
-    """Record a user decision"""
+    """Record a user decision with automatic saving"""
     data = request.json
     orch = get_orchestrator()
     
@@ -86,14 +121,26 @@ def record_decision():
             constraints=data.get('constraints', {})
         )
         
+        # Save to database
+        user_id = get_user_id()
+        persistence.save_decision(
+            user_id,
+            data['situation'],
+            data['chosen'],
+            str(data.get('rejected', [])),
+            data.get('reasoning', '')
+        )
+        save_current_state()
+        
         # Get updated status
         summary = orch.get_learning_summary()
         
         return jsonify({
             'success': True,
-            'message': 'Decision recorded! I learned from your choice.',
+            'message': 'Decision recorded and saved! I learned from your choice.',
             'understanding_level': summary['understanding_level'],
-            'new_insights': orch.insights[-3:] if orch.insights else []
+            'new_insights': orch.insights[-3:] if orch.insights else [],
+            'saved': True
         })
     except Exception as e:
         return jsonify({
@@ -239,15 +286,63 @@ def manage_boundaries():
 @app.route('/api/reset', methods=['POST'])
 def reset_session():
     """Reset the current session"""
-    if 'session_id' in session:
-        session_id = session['session_id']
-        if session_id in orchestrators:
-            del orchestrators[session_id]
+    if 'user_id' in session:
+        user_id = session['user_id']
+        if user_id in orchestrators:
+            del orchestrators[user_id]
+        # Don't delete from database - just clear memory
         session.clear()
     
     return jsonify({
         'success': True,
-        'message': 'Session reset successfully'
+        'message': 'Session reset successfully. Data is still saved in database.'
+    })
+
+
+@app.route('/api/export', methods=['GET'])
+def export_data():
+    """Export user data as JSON"""
+    user_id = get_user_id()
+    data = persistence.export_user_data(user_id)
+    
+    if data:
+        return jsonify({
+            'success': True,
+            'data': data
+        })
+    else:
+        return jsonify({
+            'success': False,
+            'error': 'No data to export'
+        }), 404
+
+
+@app.route('/api/save', methods=['POST'])
+def manual_save():
+    """Manually trigger save to database"""
+    if save_current_state():
+        stats = persistence.get_user_stats(get_user_id())
+        return jsonify({
+            'success': True,
+            'message': 'Data saved successfully!',
+            'last_saved': stats.get('last_saved')
+        })
+    else:
+        return jsonify({
+            'success': False,
+            'error': 'Nothing to save'
+        }), 400
+
+
+@app.route('/api/stats', methods=['GET'])
+def get_persistence_stats():
+    """Get persistence statistics"""
+    user_id = get_user_id()
+    stats = persistence.get_user_stats(user_id)
+    
+    return jsonify({
+        'success': True,
+        'stats': stats
     })
 
 
@@ -321,6 +416,7 @@ if __name__ == '__main__':
     print("="*60)
     print("\n📱 Open in your browser: http://localhost:5000")
     print("🌐 Mobile-friendly interface ready!")
+    print("💾 Persistent storage enabled - data survives browser restarts!")
     print("\nPress Ctrl+C to stop\n")
     
     app.run(debug=True, host='0.0.0.0', port=5000)
