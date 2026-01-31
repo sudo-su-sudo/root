@@ -7,6 +7,7 @@ A sophisticated orchestrator that handles high-level requests within boundaries
 
 from .orchestrator import SwarmOrchestrator
 from .autonomous import AutonomousOrchestrator
+from .learning_orchestrator import LearningOrchestrator
 from .models import (
     UserFramework,
     ClarificationQuestion,
@@ -15,6 +16,16 @@ from .models import (
     KnowledgeGap,
     BoundaryType,
     ConfidenceLevel,
+)
+from .learning_models import (
+    DecisionOutcome,
+    DecisionContext,
+    ReasoningPattern,
+    PreferenceHypothesis,
+    EnhancedKnowledgeGap,
+    GapRootCause,
+    ProgressUpdate,
+    FrameworkCompleteness,
 )
 from .executor import TaskExecutor, Task, TaskStatus
 from .context import (
@@ -32,6 +43,7 @@ from .services import (
 __all__ = [
     "SwarmOrchestrator",
     "AutonomousOrchestrator",
+    "LearningOrchestrator",
     "UserFramework",
     "ClarificationQuestion",
     "Decision",
@@ -39,6 +51,14 @@ __all__ = [
     "KnowledgeGap",
     "BoundaryType",
     "ConfidenceLevel",
+    "DecisionOutcome",
+    "DecisionContext",
+    "ReasoningPattern",
+    "PreferenceHypothesis",
+    "EnhancedKnowledgeGap",
+    "GapRootCause",
+    "ProgressUpdate",
+    "FrameworkCompleteness",
     "TaskExecutor",
     "Task",
     "TaskStatus",
