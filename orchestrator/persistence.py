@@ -143,10 +143,10 @@ class OrchestratorPersistence:
             
             # Extract framework data for easier querying
             framework_data = json.dumps({
-                'goals': orchestrator.framework.goals,
-                'values': orchestrator.framework.values,
-                'intent': orchestrator.framework.intent,
-                'mental_model': orchestrator.framework.mental_model
+                'goals': orchestrator.user_framework.goals,
+                'values': orchestrator.user_framework.values,
+                'intent': orchestrator.user_framework.intent,
+                'mental_model': orchestrator.user_framework.mental_model
             })
             
             # Count decisions and patterns
@@ -172,6 +172,8 @@ class OrchestratorPersistence:
             
         except Exception as e:
             print(f"Error saving orchestrator: {e}")
+            import traceback
+            traceback.print_exc()
             return False
         finally:
             conn.close()
