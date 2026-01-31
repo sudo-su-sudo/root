@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Learning Orchestrator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 10px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .status-bar {
+            background: #f8f9fa;
+            padding: 15px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .understanding-level {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .understanding-level .label {
+            font-weight: 600;
+            margin-right: 10px;
+            min-width: 120px;
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .stat {
+            text-align: center;
+            padding: 10px;
+            background: white;
+            border-radius: 10px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: #6c757d;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            background: white;
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 20px;
+            min-height: 400px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .chat-area {
+            height: 400px;
+            overflow-y: auto;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 12px 15px;
+            border-radius: 15px;
+            max-width: 85%;
+            word-wrap: break-word;
+        }
+
+        .message.user {
+            background: #667eea;
+            color: white;
+            margin-left: auto;
+            text-align: right;
+        }
+
+        .message.bot {
+            background: white;
+            color: #333;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .input-area {
+            display: flex;
+            gap: 10px;
+        }
+
+        .input-area input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 25px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .input-area input:focus {
+            border-color: #667eea;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .insight-list {
+            list-style: none;
+        }
+
+        .insight-item {
+            padding: 12px;
+            margin-bottom: 10px;
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .gap-card {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+
+        .gap-card h4 {
+            color: #856404;
+            margin-bottom: 8px;
+        }
+
+        .gap-card p {
+            font-size: 13px;
+            color: #856404;
+            margin: 5px 0;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6c757d;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #6c757d;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                border-radius: 0;
+            }
+
+            .stats {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 5px;
+            }
+
+            .stat {
+                padding: 8px;
+            }
+
+            .stat-value {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧠 Learning Orchestrator</h1>
+            <p>Your AI that learns why you make decisions</p>
+        </div>
+
+        <div class="status-bar">
+            <div class="understanding-level">
+                <span class="label">Understanding:</span>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="understanding-progress">0%</div>
+                </div>
+            </div>
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-value" id="decision-count">0</div>
+                    <div class="stat-label">Decisions</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="pattern-count">0</div>
+                    <div class="stat-label">Patterns</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="confidence">0%</div>
+                    <div class="stat-label">Confidence</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('chat')">💬 Chat</button>
+            <button class="tab" onclick="switchTab('record')">📝 Record</button>
+            <button class="tab" onclick="switchTab('predict')">🔮 Predict</button>
+            <button class="tab" onclick="switchTab('insights')">💡 Insights</button>
+        </div>
+
+        <div id="chat-tab" class="tab-content active">
+            <div class="chat-area" id="chat-messages">
+                <div class="message bot">
+                    👋 Hi! I'm your Learning Orchestrator. I learn from your decisions to understand WHY you make choices.
+                    <br><br>
+                    Type "help" to see what I can do!
+                </div>
+            </div>
+            <div class="input-area">
+                <input type="text" id="chat-input" placeholder="Ask me anything..." onkeypress="handleChatEnter(event)">
+                <button class="btn btn-primary" onclick="sendChatMessage()">Send</button>
+            </div>
+        </div>
+
+        <div id="record-tab" class="tab-content">
+            <h3 style="margin-bottom: 15px;">📝 Record a Decision</h3>
+            <p style="margin-bottom: 20px; color: #6c757d; font-size: 14px;">
+                Tell me about a choice you made so I can learn your preferences!
+            </p>
+
+            <div class="form-group">
+                <label>What was the situation?</label>
+                <textarea id="record-situation" placeholder="e.g., Choosing a new laptop"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>What did you choose?</label>
+                <input type="text" id="record-chosen" placeholder="e.g., MacBook Pro">
+            </div>
+
+            <div class="form-group">
+                <label>What did you reject? (comma-separated)</label>
+                <input type="text" id="record-rejected" placeholder="e.g., Windows laptop, Chromebook">
+            </div>
+
+            <div class="form-group">
+                <label>Why did you choose it?</label>
+                <textarea id="record-reasoning" placeholder="e.g., Better build quality and ecosystem integration"></textarea>
+            </div>
+
+            <button class="btn btn-primary" style="width: 100%;" onclick="recordDecision()">
+                Record Decision
+            </button>
+
+            <div id="record-result" style="margin-top: 15px;"></div>
+        </div>
+
+        <div id="predict-tab" class="tab-content">
+            <h3 style="margin-bottom: 15px;">🔮 Get a Prediction</h3>
+            <p style="margin-bottom: 20px; color: #6c757d; font-size: 14px;">
+                I'll predict what you'd choose based on what I've learned!
+            </p>
+
+            <div class="form-group">
+                <label>What's the situation?</label>
+                <textarea id="predict-situation" placeholder="e.g., Choosing a project management tool"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>What are your options? (comma-separated)</label>
+                <textarea id="predict-options" placeholder="e.g., Asana, Trello, Monday.com"></textarea>
+            </div>
+
+            <button class="btn btn-primary" style="width: 100%;" onclick="getPrediction()">
+                Get Prediction
+            </button>
+
+            <div id="predict-result" style="margin-top: 15px;"></div>
+        </div>
+
+        <div id="insights-tab" class="tab-content">
+            <h3 style="margin-bottom: 15px;">💡 What I've Learned</h3>
+            
+            <div id="insights-loading" class="loading">
+                <div class="spinner"></div>
+                <p>Loading insights...</p>
+            </div>
+
+            <div id="insights-content" style="display: none;">
+                <div style="margin-bottom: 20px;">
+                    <h4 style="margin-bottom: 10px;">📊 Progress Summary</h4>
+                    <div id="progress-summary" style="padding: 15px; background: #f8f9fa; border-radius: 10px; font-size: 14px;"></div>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <h4 style="margin-bottom: 10px;">🎯 Alignment Check</h4>
+                    <div id="alignment-check" style="padding: 15px; background: #f8f9fa; border-radius: 10px; font-size: 14px;"></div>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <h4 style="margin-bottom: 10px;">🔍 Recent Insights</h4>
+                    <ul class="insight-list" id="insights-list"></ul>
+                </div>
+
+                <div id="patterns-section" style="margin-bottom: 20px; display: none;">
+                    <h4 style="margin-bottom: 10px;">📈 Strong Patterns</h4>
+                    <ul class="insight-list" id="patterns-list"></ul>
+                </div>
+
+                <div id="hypotheses-section" style="margin-bottom: 20px; display: none;">
+                    <h4 style="margin-bottom: 10px;">💭 Confident Hypotheses</h4>
+                    <ul class="insight-list" id="hypotheses-list"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentTab = 'chat';
+
+        function switchTab(tabName) {
+            // Update tabs
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            document.querySelector(`[onclick="switchTab('${tabName}')"]`).classList.add('active');
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+            
+            currentTab = tabName;
+            
+            // Load insights when switching to that tab
+            if (tabName === 'insights') {
+                loadInsights();
+            }
+        }
+
+        async function updateStatus() {
+            try {
+                const response = await fetch('/api/status');
+                const data = await response.json();
+                
+                // Update progress bar
+                const level = parseInt(data.understanding_level);
+                document.getElementById('understanding-progress').style.width = level + '%';
+                document.getElementById('understanding-progress').textContent = data.understanding_level;
+                
+                // Update stats
+                document.getElementById('decision-count').textContent = data.decision_count;
+                document.getElementById('pattern-count').textContent = data.patterns_identified;
+                document.getElementById('confidence').textContent = level + '%';
+                
+            } catch (error) {
+                console.error('Error updating status:', error);
+            }
+        }
+
+        function addMessage(text, isUser = false) {
+            const chatArea = document.getElementById('chat-messages');
+            const message = document.createElement('div');
+            message.className = `message ${isUser ? 'user' : 'bot'}`;
+            message.innerHTML = text.replace(/\n/g, '<br>');
+            chatArea.appendChild(message);
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+
+        async function sendChatMessage() {
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            addMessage(message, true);
+            input.value = '';
+            
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({message: message})
+                });
+                
+                const data = await response.json();
+                addMessage(data.response);
+                
+                updateStatus();
+            } catch (error) {
+                addMessage('Sorry, something went wrong. Please try again.');
+            }
+        }
+
+        function handleChatEnter(event) {
+            if (event.key === 'Enter') {
+                sendChatMessage();
+            }
+        }
+
+        async function recordDecision() {
+            const situation = document.getElementById('record-situation').value.trim();
+            const chosen = document.getElementById('record-chosen').value.trim();
+            const rejected = document.getElementById('record-rejected').value.trim().split(',').map(s => s.trim()).filter(s => s);
+            const reasoning = document.getElementById('record-reasoning').value.trim();
+            
+            if (!situation || !chosen) {
+                showResult('record-result', '⚠️ Please fill in at least the situation and what you chose.', 'warning');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/record_decision', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        situation: situation,
+                        chosen: chosen,
+                        rejected: rejected,
+                        reasoning: reasoning
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showResult('record-result', 
+                        `✅ ${data.message}<br><br>` +
+                        `Understanding level: ${data.understanding_level}<br><br>` +
+                        (data.new_insights && data.new_insights.length > 0 
+                            ? `New insights: ${data.new_insights.join(', ')}`
+                            : ''),
+                        'success'
+                    );
+                    
+                    // Clear form
+                    document.getElementById('record-situation').value = '';
+                    document.getElementById('record-chosen').value = '';
+                    document.getElementById('record-rejected').value = '';
+                    document.getElementById('record-reasoning').value = '';
+                    
+                    updateStatus();
+                } else {
+                    showResult('record-result', `❌ ${data.error}`, 'error');
+                }
+            } catch (error) {
+                showResult('record-result', '❌ Something went wrong. Please try again.', 'error');
+            }
+        }
+
+        async function getPrediction() {
+            const situation = document.getElementById('predict-situation').value.trim();
+            const options = document.getElementById('predict-options').value.trim().split(',').map(s => s.trim()).filter(s => s);
+            
+            if (!situation || options.length === 0) {
+                showResult('predict-result', '⚠️ Please enter both a situation and options.', 'warning');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/predict', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        situation: situation,
+                        options: options
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    const confidenceColor = data.confidence >= 70 ? '#28a745' : data.confidence >= 40 ? '#ffc107' : '#dc3545';
+                    showResult('predict-result',
+                        `<strong>🔮 Prediction:</strong> ${data.chosen}<br><br>` +
+                        `<strong>Confidence:</strong> <span style="color: ${confidenceColor}; font-weight: bold;">${data.confidence}%</span><br><br>` +
+                        `<strong>Reasoning:</strong><br>${data.reasoning.substring(0, 300)}...<br><br>` +
+                        `<strong>Needs Confirmation:</strong> ${data.needs_confirmation ? '⚠️ Yes' : '✅ No'}`,
+                        'info'
+                    );
+                } else {
+                    showResult('predict-result', `❌ ${data.error}`, 'error');
+                }
+            } catch (error) {
+                showResult('predict-result', '❌ Something went wrong. Please try again.', 'error');
+            }
+        }
+
+        async function loadInsights() {
+            document.getElementById('insights-loading').style.display = 'block';
+            document.getElementById('insights-content').style.display = 'none';
+            
+            try {
+                const response = await fetch('/api/status');
+                const data = await response.json();
+                
+                // Update progress summary
+                document.getElementById('progress-summary').textContent = data.progress_summary;
+                document.getElementById('alignment-check').textContent = data.alignment_check;
+                
+                // Update insights list
+                const insightsList = document.getElementById('insights-list');
+                insightsList.innerHTML = '';
+                
+                if (data.key_insights && data.key_insights.length > 0) {
+                    data.key_insights.forEach(insight => {
+                        const li = document.createElement('li');
+                        li.className = 'insight-item';
+                        li.textContent = insight;
+                        insightsList.appendChild(li);
+                    });
+                } else {
+                    insightsList.innerHTML = '<li class="insight-item">No insights yet. Record some decisions to help me learn!</li>';
+                }
+                
+                // Update patterns
+                if (data.strong_patterns && data.strong_patterns.length > 0) {
+                    document.getElementById('patterns-section').style.display = 'block';
+                    const patternsList = document.getElementById('patterns-list');
+                    patternsList.innerHTML = '';
+                    data.strong_patterns.forEach(pattern => {
+                        const li = document.createElement('li');
+                        li.className = 'insight-item';
+                        li.textContent = pattern;
+                        patternsList.appendChild(li);
+                    });
+                } else {
+                    document.getElementById('patterns-section').style.display = 'none';
+                }
+                
+                // Update hypotheses
+                if (data.confident_hypotheses && data.confident_hypotheses.length > 0) {
+                    document.getElementById('hypotheses-section').style.display = 'block';
+                    const hypothesesList = document.getElementById('hypotheses-list');
+                    hypothesesList.innerHTML = '';
+                    data.confident_hypotheses.forEach(hyp => {
+                        const li = document.createElement('li');
+                        li.className = 'insight-item';
+                        li.textContent = hyp;
+                        hypothesesList.appendChild(li);
+                    });
+                } else {
+                    document.getElementById('hypotheses-section').style.display = 'none';
+                }
+                
+                document.getElementById('insights-loading').style.display = 'none';
+                document.getElementById('insights-content').style.display = 'block';
+            } catch (error) {
+                console.error('Error loading insights:', error);
+                document.getElementById('insights-loading').innerHTML = '<p>Error loading insights</p>';
+            }
+        }
+
+        function showResult(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            const colors = {
+                success: '#d4edda',
+                warning: '#fff3cd',
+                error: '#f8d7da',
+                info: '#d1ecf1'
+            };
+            element.style.padding = '15px';
+            element.style.background = colors[type] || colors.info;
+            element.style.borderRadius = '10px';
+            element.innerHTML = message;
+        }
+
+        // Initialize
+        updateStatus();
+        setInterval(updateStatus, 5000); // Update every 5 seconds
+    </script>
+</body>
+</html>

@@ -1,2 +1,4 @@
-pydantic>=2.0.0
+pydantic
+flask
+flask-cors>=2.0.0
 pytest>=7.0.0

@@ -2,6 +2,25 @@
 
 A sophisticated AI orchestrator that **learns WHY you make decisions** and can act autonomously on your behalf. It prioritizes deep understanding of your reasoning over rigid transparency, using preference learning and meta-reasoning to build confidence in its decisions.
 
+## 🌟 NEW: Mobile-Friendly Web Interface!
+
+**Use the orchestrator from your phone's browser - no coding required!**
+
+```bash
+python3 web_app.py
+# Then open http://localhost:5000 in your browser
+```
+
+- 📱 **Mobile-optimized** - Works perfectly on phones
+- 💬 **Chat interface** - Natural conversation
+- 📝 **Record decisions** - Simple forms
+- 🔮 **Get predictions** - Based on learned patterns
+- 💡 **View insights** - See what it learned
+
+See [WEB_INTERFACE_GUIDE.md](WEB_INTERFACE_GUIDE.md) for complete instructions!
+
+![Web Interface](https://github.com/user-attachments/assets/34879f84-a138-4c04-85ea-fe7ee4d42e55)
+
 ## Two Modes of Operation
 
 ### 1. Basic Orchestrator (Transparent & Rule-Based)
