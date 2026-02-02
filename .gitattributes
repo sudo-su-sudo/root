@@ -1,0 +1,67 @@
+# Git Attributes for Repository Preservation
+
+# This file defines how Git should handle different file types
+# to ensure proper history preservation and diff generation
+
+# Documentation files - these are critical knowledge artifacts
+*.md diff=markdown
+*.md merge=union
+
+# Preserve line endings in documentation
+*.md text eol=lf
+
+# Python files - source code
+*.py text eol=lf diff=python
+
+# Configuration files
+*.json text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.toml text eol=lf
+*.ini text eol=lf
+*.cfg text eol=lf
+
+# Shell scripts
+*.sh text eol=lf
+*.bash text eol=lf
+
+# Web files
+*.html text eol=lf
+*.css text eol=lf
+*.js text eol=lf
+
+# Special handling for critical historical documents
+HISTORY.md merge=union linguist-documentation
+TIMELINE.md merge=union linguist-documentation
+ARCHIVAL_POLICY.md merge=union linguist-documentation
+AGENT_DEFINITION.md merge=union linguist-documentation
+INTEGRATION_GUIDE.md merge=union linguist-documentation
+
+# README files are critical and should be carefully merged
+README*.md linguist-documentation
+
+# Data files
+*.csv text eol=lf
+*.tsv text eol=lf
+*.txt text eol=lf
+
+# Binary files - store as-is
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.tar binary
+*.gz binary
+
+# Archive important documents as linguist documentation
+# This helps GitHub recognize them as documentation
+*SUMMARY*.md linguist-documentation
+*GUIDE*.md linguist-documentation
+*EXPLAINED*.md linguist-documentation
+
+# Ensure gitignore and gitattributes are never excluded
+.gitignore !filter !diff !merge
+.gitattributes !filter !diff !merge
