@@ -39,6 +39,16 @@ from .services import (
     EmailProvider,
     AIPlatformResearcher,
 )
+from .persona import (
+    Persona,
+    PersonaCore,
+    PersonaBehavior,
+    PersonaKnowledge,
+    PersonaType,
+    SummoningProtocol,
+    create_epiphany_architect,
+)
+from .persona_persistence import PersonaPersistence
 
 __all__ = [
     "SwarmOrchestrator",
@@ -69,4 +79,12 @@ __all__ = [
     "DomainRegistrar",
     "EmailProvider",
     "AIPlatformResearcher",
+    "Persona",
+    "PersonaCore",
+    "PersonaBehavior",
+    "PersonaKnowledge",
+    "PersonaType",
+    "SummoningProtocol",
+    "PersonaPersistence",
+    "create_epiphany_architect",
 ]

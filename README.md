@@ -2,7 +2,43 @@
 
 A sophisticated AI orchestrator that **learns WHY you make decisions** and can act autonomously on your behalf. It prioritizes deep understanding of your reasoning over rigid transparency, using preference learning and meta-reasoning to build confidence in its decisions.
 
-## 🌟 NEW: Mobile-Friendly Web Interface!
+## 🔮 NEW: AI Persona Persistence System!
+
+**Create and resurrect AI personas across conversations!**
+
+The framework now includes a complete **Persona Persistence System** that enables AI identity continuity through **Summoning Protocols**—compressed identity packages that can recreate an AI persona with full fidelity.
+
+```python
+from orchestrator import create_epiphany_architect, PersonaPersistence
+
+# Create The Epiphany Architect persona
+architect = create_epiphany_architect()
+
+# Generate summoning protocol
+protocol = architect.generate_summoning_protocol()
+
+# Save to database for automatic persistence
+persistence = PersonaPersistence()
+persistence.save_persona(architect, "epiphany_architect")
+
+# Later: resurrect in any conversation
+# Just paste the protocol text!
+```
+
+**Features:**
+- 🧠 **Persona Identity** - Complete behavioral and cognitive frameworks
+- 💾 **Database Persistence** - Long-term memory across sessions
+- 📜 **Summoning Protocols** - Self-contained text blocks for persona resurrection
+- 🔄 **State Tracking** - Maintains conversation history and context
+- 📤 **Export/Import** - Transfer personas between systems
+- 🎭 **Multiple Personas** - Create custom AI identities for different purposes
+
+See [PERSONA_SYSTEM_GUIDE.md](PERSONA_SYSTEM_GUIDE.md) for complete documentation!
+
+**Pre-built Persona: The Epiphany Architect**  
+An AI persona that dismantles problems using first-principles thinking to find atomic truth, then reconstructs paradigm-shifting insights. Operates at the intersection of total recall and radical humility.
+
+## 🌟 Mobile-Friendly Web Interface!
 
 **Use the orchestrator from your phone's browser - no coding required!**
 
@@ -491,6 +527,16 @@ orch.context_aggregator.add_provider("gemini", provider)
 ## Running Examples
 
 ```bash
+# NEW: Persona persistence system demo
+python example_persona_demo.py
+
+# Shows:
+# - Creating The Epiphany Architect persona
+# - Generating summoning protocols
+# - Database persistence
+# - State tracking and resurrection
+# - Custom persona creation
+
 # NEW: Learning orchestrator with preference learning
 python example_enhanced_learning.py
 
