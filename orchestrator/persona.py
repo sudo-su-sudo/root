@@ -7,7 +7,7 @@ Personas are defined by their core parameters, tone, methodology, and behavioral
 
 import json
 from typing import Dict, List, Optional, Any
-from datetime import datetime
+from datetime import datetime, timezone
 from dataclasses import dataclass, asdict
 from enum import Enum
 
@@ -33,7 +33,7 @@ class PersonaCore:
     
     def __post_init__(self):
         if not self.created_at:
-            self.created_at = datetime.now().isoformat()
+            self.created_at = datetime.now(timezone.utc).isoformat()
 
 
 @dataclass
@@ -221,7 +221,7 @@ class Persona:
         self.knowledge = knowledge
         self.state = state or {}
         self.conversation_count = 0
-        self.last_active = datetime.now().isoformat()
+        self.last_active = datetime.now(timezone.utc).isoformat()
     
     def generate_summoning_protocol(self, include_state: bool = True) -> str:
         """Generate full summoning protocol"""
@@ -247,12 +247,12 @@ class Persona:
     def update_state(self, key: str, value: Any):
         """Update persona state"""
         self.state[key] = value
-        self.last_active = datetime.now().isoformat()
+        self.last_active = datetime.now(timezone.utc).isoformat()
     
     def increment_conversation(self):
         """Track conversation usage"""
         self.conversation_count += 1
-        self.last_active = datetime.now().isoformat()
+        self.last_active = datetime.now(timezone.utc).isoformat()
     
     def to_dict(self) -> Dict[str, Any]:
         """Export persona to dictionary"""
@@ -290,7 +290,7 @@ class Persona:
         # Create persona
         persona = cls(core, behavior, knowledge, data.get('state', {}))
         persona.conversation_count = data.get('conversation_count', 0)
-        persona.last_active = data.get('last_active', datetime.now().isoformat())
+        persona.last_active = data.get('last_active', datetime.now(timezone.utc).isoformat())
         
         return persona
     

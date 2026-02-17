@@ -7,7 +7,7 @@ Enables long-term persona memory across sessions.
 
 import sqlite3
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional, List, Dict, Any
 from pathlib import Path
 
@@ -172,7 +172,7 @@ class PersonaPersistence:
                 persona_id,
                 full_protocol,
                 compact_protocol,
-                datetime.now()
+                datetime.now(timezone.utc)
             ))
             
             conn.commit()
@@ -198,11 +198,17 @@ class PersonaPersistence:
         cursor = conn.cursor()
         
         try:
-            field = 'compact_protocol' if compact else 'protocol_text'
-            cursor.execute(f'''
-                SELECT {field} FROM summoning_protocols
-                WHERE persona_id = ?
-            ''', (persona_id,))
+            # Use parameterized query with whitelisted column selection
+            if compact:
+                cursor.execute('''
+                    SELECT compact_protocol FROM summoning_protocols
+                    WHERE persona_id = ?
+                ''', (persona_id,))
+            else:
+                cursor.execute('''
+                    SELECT protocol_text FROM summoning_protocols
+                    WHERE persona_id = ?
+                ''', (persona_id,))
             
             row = cursor.fetchone()
             return row[0] if row else None
@@ -229,7 +235,7 @@ class PersonaPersistence:
             ''', (
                 persona_id,
                 json.dumps(state),
-                datetime.now()
+                datetime.now(timezone.utc)
             ))
             
             conn.commit()
@@ -315,7 +321,7 @@ class PersonaPersistence:
                 SET last_active = ?,
                     conversation_count = conversation_count + 1
                 WHERE persona_id = ?
-            ''', (datetime.now(), persona_id))
+            ''', (datetime.now(timezone.utc), persona_id))
             
             conn.commit()
             
@@ -350,7 +356,7 @@ class PersonaPersistence:
             export = {
                 'persona_id': persona_id,
                 'persona_data': json.loads(row[0]),
-                'exported_at': datetime.now().isoformat()
+                'exported_at': datetime.now(timezone.utc).isoformat()
             }
             
             # Get summoning protocol
