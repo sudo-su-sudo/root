@@ -2,6 +2,14 @@
 
 A sophisticated AI orchestrator that **learns WHY you make decisions** and can act autonomously on your behalf. It prioritizes deep understanding of your reasoning over rigid transparency, using preference learning and meta-reasoning to build confidence in its decisions.
 
+## 📚 Documentation Guide
+
+- 🚀 **Getting Started?** → [QUICK_START.md](QUICK_START.md) - Simple guide to get running in minutes
+- 📖 **Want the Big Picture?** → [COMPLETE_SUMMARY.md](COMPLETE_SUMMARY.md) - Comprehensive overview of features and journey
+- 📱 **Using the Web Interface?** → [WEB_INTERFACE_GUIDE.md](WEB_INTERFACE_GUIDE.md) - Detailed mobile web guide
+- 💾 **How Does Persistence Work?** → [PERSISTENCE_EXPLAINED.md](PERSISTENCE_EXPLAINED.md) - Simple explanation of data storage
+- 🧠 **Deep Dive into Learning?** → [LEARNING_IMPLEMENTATION.md](LEARNING_IMPLEMENTATION.md) - Technical details on preference learning
+
 ## 🌟 NEW: Mobile-Friendly Web Interface!
 
 **Use the orchestrator from your phone's browser - no coding required!**
